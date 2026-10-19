@@ -1,5 +1,5 @@
 # Naziv projekta
 
-Autor: Ime Prezime
+Autor: Andrej Kontošić
 
-Jedna rečenica: što aplikacija radi i za koju zajednicu.
+Jedna rečenica: trenutno ima click counter.
