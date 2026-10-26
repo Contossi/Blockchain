@@ -2,4 +2,4 @@
 
 Autor: Andrej Kontošić
 
-Jedna rečenica: trenutno ima click counter.
+Frontend sad ima mogučnost spajanja na MetaMask i slanje Sepolia ETH te se prikazuje povijest Receipta.

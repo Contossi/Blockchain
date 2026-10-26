@@ -1,11 +1,396 @@
+:root {
+  --bg: #f4f5fb;
+  --surface: #ffffff;
+  --text: #1c1f2e;
+  --muted: #6b7083;
+  --border: #e3e5ef;
+  --accent: #5b6cf0;
+  --accent-hover: #4756e0;
+  --accent-soft: #eceefe;
+  --ok: #1e8e4e;
+  --ok-soft: #e4f6ec;
+  --warn: #a86b00;
+  --warn-soft: #fff4dc;
+  --danger: #c62839;
+  --danger-soft: #fdeaec;
+  --shadow: 0 1px 2px rgba(20, 24, 50, 0.04), 0 4px 16px rgba(20, 24, 50, 0.06);
+  --radius: 14px;
+  --mono: ui-monospace, "Cascadia Code", Consolas, monospace;
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0f1117;
+    --surface: #181b25;
+    --text: #e8eaf2;
+    --muted: #9095a8;
+    --border: #2a2e3c;
+    --accent: #7c89ff;
+    --accent-hover: #929dff;
+    --accent-soft: #23284a;
+    --ok: #4cc782;
+    --ok-soft: #173326;
+    --warn: #f0b440;
+    --warn-soft: #3a2e14;
+    --danger: #ff6b7a;
+    --danger-soft: #3d1a20;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 4px 16px rgba(0, 0, 0, 0.25);
+    color-scheme: dark;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
 body {
-  font-family: system-ui, sans-serif;
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
   margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.5;
 }
 
 main {
-  max-width: 640px;
+  max-width: 560px;
   margin: 3rem auto;
   padding: 0 1rem;
+}
+
+h1, h2, h3 {
+  margin: 0;
+  line-height: 1.25;
+}
+
+h3 {
+  font-size: 1.05rem;
+  margin-bottom: 1rem;
+}
+
+a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+code {
+  font-family: var(--mono);
+  font-size: 0.9em;
+  word-break: break-all;
+}
+
+.muted { color: var(--muted); }
+.small { font-size: 0.85rem; }
+
+.label {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+}
+
+/* Zaglavlje i kartice */
+.hero {
   text-align: center;
+  margin-bottom: 2rem;
+}
+
+.hero h1 {
+  font-size: 2rem;
+}
+
+.hero p {
+  margin: 0.4rem 0 0;
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.card-head h3 {
+  margin: 0;
+}
+
+/* Gumbi */
+button {
+  font: inherit;
+  font-weight: 600;
+  border-radius: 10px;
+  padding: 0.6rem 1.1rem;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, opacity 0.15s;
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+button:focus-visible,
+input:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+button.primary {
+  background: var(--accent);
+  color: #fff;
+}
+
+button.primary:hover:not(:disabled) {
+  background: var(--accent-hover);
+}
+
+button.secondary {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+button.secondary:hover:not(:disabled) {
+  border-color: var(--accent);
+}
+
+button.ghost {
+  background: transparent;
+  color: var(--muted);
+  padding: 0.35rem 0.7rem;
+  font-size: 0.85rem;
+}
+
+button.ghost:hover:not(:disabled) {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+button.ghost.danger:hover:not(:disabled) {
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+
+button.wide {
+  width: 100%;
+}
+
+.actions {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+}
+
+/* Obrasci */
+.wallet label {
+  display: block;
+  margin-bottom: 1rem;
+}
+
+.wallet input {
+  display: block;
+  width: 100%;
+  margin-top: 0.35rem;
+  padding: 0.65rem 0.8rem;
+  font: inherit;
+  color: var(--text);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  transition: border-color 0.15s;
+}
+
+.wallet input:focus {
+  border-color: var(--accent);
+}
+
+.wallet input:disabled {
+  opacity: 0.6;
+}
+
+.wallet input.mono {
+  font-family: var(--mono);
+  font-size: 0.9rem;
+}
+
+.wallet form .notice {
+  margin: 0 0 1rem;
+}
+
+/* Račun */
+.connect {
+  text-align: center;
+  padding: 0.5rem 0;
+}
+
+.connect p {
+  margin: 0 0 1rem;
+}
+
+.balance .amount {
+  display: block;
+  font-size: 2rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  word-break: break-all;
+}
+
+.balance small {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--muted);
+}
+
+.account-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.chip {
+  background: var(--accent-soft);
+  color: var(--accent);
+  padding: 0.25rem 0.6rem;
+  border-radius: 999px;
+}
+
+/* Obavijesti i oznake */
+.notice {
+  margin: 1rem 0 0;
+  padding: 0.75rem 1rem;
+  border-radius: 10px;
+  font-size: 0.92rem;
+}
+
+.notice.error {
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+
+.notice.warn {
+  background: var(--warn-soft);
+  color: var(--warn);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 0.2rem 0.65rem;
+  border-radius: 999px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  white-space: nowrap;
+}
+
+.badge .dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.badge.ok, .badge.confirmed { background: var(--ok-soft); color: var(--ok); }
+.badge.warn, .badge.pending, .badge.awaiting { background: var(--warn-soft); color: var(--warn); }
+.badge.failed, .badge.replaced { background: var(--danger-soft); color: var(--danger); }
+
+.badge.pending .dot,
+.badge.awaiting .dot {
+  animation: pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  50% { opacity: 0.25; }
+}
+
+/* Pregled i status */
+.review dl {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 0.5rem 1rem;
+  margin: 0 0 1.25rem;
+}
+
+.review dt {
+  color: var(--muted);
+}
+
+.review dd {
+  margin: 0;
+  text-align: right;
+}
+
+.review .total {
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--border);
+  font-weight: 700;
+  color: var(--text);
+}
+
+.status p {
+  margin: 0.6rem 0;
+}
+
+.status.confirmed { border-color: var(--ok); }
+.status.failed { border-color: var(--danger); }
+
+/* Povijest */
+.history ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.history li {
+  display: grid;
+  gap: 0.3rem;
+  padding: 0.85rem 0;
+  border-top: 1px solid var(--border);
+}
+
+.history li:first-child {
+  border-top: none;
+  padding-top: 0;
+}
+
+.history .row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 480px) {
+  main { margin: 1.5rem auto; }
+  .card { padding: 1rem; }
+  .review dl { grid-template-columns: 1fr; }
+  .review dd { text-align: left; margin-bottom: 0.4rem; }
+  .actions button { flex: 1; }
 }

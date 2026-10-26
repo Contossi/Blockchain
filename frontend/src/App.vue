@@ -1,13 +1,14 @@
 <script setup>
-import { useCounterStore } from './stores/counter'
-
-const counter = useCounterStore()
+import WalletPanel from './components/WalletPanel.vue'
 </script>
 
 <template>
   <main>
-    <h1>Moj projekt</h1>
-    <p>Frontend: Vue 3 + Pinia + Vite</p>
-    <button @click="counter.increment">Klikovi: {{ counter.count }}</button>
+    <header class="hero">
+      <h1>Moj projekt</h1>
+      <p class="muted">Slanje testnog SepoliaETH-a kolegama</p>
+    </header>
+
+    <WalletPanel />
   </main>
 </template>
