@@ -20,6 +20,8 @@ Sustav čine dva ugovora:
 
 U odjeljku *Funkcije* „vlasnik" u porukama pada (`Samo vlasnik`, `Samo vlasnik ili administrator`) znači vlasnika onog ugovora u kojem je funkcija.
 
+**Redoslijed provjera:** ako za jedan poziv vrijedi više uvjeta pada, transakcija pada s porukom prvog uvjeta po redoslijedu u listi „Pada" te funkcije.
+
 ## Odluke o tokenu
 | Odluka | Odgovor |
 |---|---|
@@ -29,7 +31,7 @@ U odjeljku *Funkcije* „vlasnik" u porukama pada (`Samo vlasnik`, `Samo vlasnik
 | Trošenje | Spaljivanje je dopušteno: član spaljuje svoje bodove, a vlasnik CWB i administratori bodove bilo koje adrese. |
 | Administratori | Dodaje ih i uklanja samo vlasnik CWB. Popis je zajednički za oba ugovora. Administrator ne može ukloniti ni zamijeniti vlasnika. Vlasništvo pojedinog ugovora prenosi samo njegov vlasnik, a vlasnik se smije i odreći vlasništva. |
 | Gubitak ključa (vlasnik) | Vlasnik postavlja i mijenja rezervnog vlasnika. Rezervni vlasnik preuzima vlasništvo tek nakon 180 dana neaktivnosti vlasnika. Prihvaćeno je da vlasnik koji 180 dana ne pošalje nijednu transakciju ugovoru može izgubiti vlasništvo, iako nije izgubio novčanik. |
-| Gubitak ključa (član) | Vlasnik CWB ili administrator premješta cijeli saldo sa stare na novu adresu. Gubitak je 30 % i spaljuje se: `gubitak = floor(saldo * 30 / 100)`, a nova adresa dobiva `saldo - gubitak`. |
+| Gubitak ključa (član) | Vlasnik CWB ili administrator premješta cijeli saldo sa stare na novu adresu. Nova adresa mora biti bez bodova CWB. Gubitak je 30 % i spaljuje se: `gubitak = floor(saldo * 30 / 100)`, a nova adresa dobiva `saldo - gubitak`. Za saldo od 1 do 3 CWB gubitak je 0. |
 
 ## Odluke o modulu
 | Odluka | Odgovor |
@@ -55,7 +57,7 @@ U odjeljku *Funkcije* „vlasnik" u porukama pada (`Samo vlasnik`, `Samo vlasnik
   - `amount` je 0 → `Iznos mora biti veci od 0`
 
 **`transfer(to, amount)`**
-- Poziva: bilo koji imatelj bodova.
+- Poziva: bilo koji imatelj bodova; iznos 0 može poslati bilo tko, i adresa bez bodova.
 - Ulaz: adresa primatelja, broj bodova.
 - Radi: prenosi `amount` CWB s pozivatelja na `to`.
 - Pada:
@@ -93,11 +95,12 @@ U odjeljku *Funkcije* „vlasnik" u porukama pada (`Samo vlasnik`, `Samo vlasnik
 **`recoverPoints(oldAddr, newAddr)`**
 - Poziva: vlasnik CWB, administrator (uključujući ugovor iskaznice).
 - Ulaz: stara (izgubljena) adresa, nova adresa.
-- Radi: računa `gubitak = floor(saldo * 30 / 100)`, spaljuje `gubitak` sa stare adrese, a ostatak (`saldo - gubitak`) prenosi na novu adresu. Stara adresa ostaje s 0 CWB.
+- Radi: računa `gubitak = floor(saldo * 30 / 100)`, spaljuje `gubitak` sa stare adrese, a ostatak (`saldo - gubitak`) prenosi na novu adresu. Stara adresa ostaje s 0 CWB. Ako je `gubitak` 0 (saldo 1–3 CWB), ništa se ne spaljuje i transakcija ne pada.
 - Pada:
   - pozivatelj nije vlasnik ni administrator → `Samo vlasnik ili administrator`
   - `newAddr` je nulta adresa → `Neispravna adresa`
   - `oldAddr` i `newAddr` su iste → `Adrese moraju biti razlicite`
+  - nova adresa ima bodova CWB → `Nova adresa mora biti prazna`
   - saldo stare adrese je 0 → `Nema bodova za premjestanje`
 
 ### Ugovor ClanskaIskaznica (ERC-721)
@@ -125,6 +128,7 @@ U odjeljku *Funkcije* „vlasnik" u porukama pada (`Samo vlasnik`, `Samo vlasnik
 **`isValid(tokenId)`** (čitanje)
 - Poziva: bilo tko.
 - Radi: vraća `true` ako iskaznica postoji i `block.timestamp <= expiresAt`, inače `false`. Iskaznica vrijedi zaključno s trenutkom `expiresAt`. Služi kao provjera digitalnog ključa za ulaz.
+- Napomena: `tokenId` je javan, pa sam `isValid` ne dokazuje posjed iskaznice. Provjera ulaza (izvan lanca) mora tražiti poruku potpisanu ključem adrese `ownerOf(tokenId)` i odbiti ulaz ako potpisnik nije ta adresa.
 - Pada: ne pada.
 
 **`transferFrom` / `safeTransferFrom`**
@@ -213,7 +217,7 @@ ClanskaIskaznica nema vlastiti popis administratora. Pri svakoj provjeri ovlasti
 | Funkcija | Vlasnik CWB | Vlasnik iskaznice | Rezervni vlasnik | Administrator | Član | Bilo tko |
 |---|---|---|---|---|---|---|
 | `mint` (CWB) | ✅ | ❌ | ❌ | ✅ | ❌ | ❌ |
-| `transfer` (vlastiti CWB) | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ |
+| `transfer` (vlastiti CWB) | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ (samo iznos 0) |
 | `transferFrom`, `approve` (CWB) | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
 | `burn` (vlastiti CWB) | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ |
 | `adminBurn` (CWB) | ✅ | ❌ | ❌ | ✅ | ❌ | ❌ |
@@ -228,7 +232,7 @@ ClanskaIskaznica nema vlastiti popis administratora. Pri svakoj provjeri ovlasti
 | `transferOwnership`, `renounceOwnership`, `setBackupOwner` | ✅ (CWB) | ✅ (iskaznica) | ❌ | ❌ | ❌ | ❌ |
 | `claimOwnership` | ❌ | ❌ | ✅ (nakon 180 dana, samo u ugovoru za koji je postavljen) | ❌ | ❌ | ❌ |
 
-❌ u stupcima vlasnika i rezervnog vlasnika znači da ta uloga sama po sebi nema ovlast; adresa je dobiva ako je ujedno na popisu administratora. „Bilo tko" označava adresu bez bodova i bez ikakve uloge; adresa koja ima bodove smatra se članom.
+❌ u stupcima vlasnika i rezervnog vlasnika znači da ta uloga sama po sebi nema ovlast; adresa je dobiva ako je ujedno na popisu administratora. ✅ za `transfer` i `burn` u stupcima vlasnika, rezervnog vlasnika i administratora vrijedi samo za bodove koje ta adresa drži; ne proizlazi iz uloge. „Bilo tko" označava adresu bez bodova i bez ikakve uloge; adresa koja ima bodove smatra se članom. Adresa bez bodova može pozvati `transfer` samo s iznosom 0 (prema ERC-20 standardu, K64).
 
 Ugovor ClanskaIskaznica ima ulogu administratora u ugovoru CoworkingBodovi. Administrator s popisa u CoworkingBodovi automatski je administrator i u ClanskaIskaznica.
 
@@ -338,6 +342,16 @@ Zadano: administrator A i adresa S sa saldom 10 CWB.
 Kada: A pozove `recoverPoints(S, S)`.
 Tada: transakcija pada s porukom `Adrese moraju biti razlicite`.
 
+**K65: Oporavak bodova na adresu koja već ima bodove**
+Zadano: administrator A, stara adresa S sa saldom 10 CWB i nova adresa N sa saldom 5 CWB.
+Kada: A pozove `recoverPoints(S, N)`.
+Tada: transakcija pada s porukom `Nova adresa mora biti prazna`, saldo S je 10 CWB, a saldo N je 5 CWB.
+
+**K68: Oporavak malog salda bez gubitka**
+Zadano: administrator A, stara adresa S sa saldom 3 CWB i nova adresa N sa saldom 0 CWB.
+Kada: A pozove `recoverPoints(S, N)`.
+Tada: transakcija uspijeva, saldo S je 0 CWB, saldo N je 3 CWB, a ukupna količina CWB nije promijenjena.
+
 ### Administratori (CoworkingBodovi) i vlasništvo (oba ugovora)
 U K17–K21 V je vlasnik CWB. U K22–K30 V i R su vlasnik i rezervni vlasnik istog ugovora, a svaki od tih kriterija testira se na oba ugovora.
 
@@ -422,10 +436,17 @@ Kada: A pozove `claimOwnership()`.
 Tada: transakcija pada s porukom `Samo rezervni vlasnik`.
 
 ### Članska iskaznica
+U K31–K38 koriste se fiksna vremena (UTC; 23:59:59 po zagrebačkom ljetnom vremenu je 21:59:59 UTC). Testovi postavljaju vrijeme bloka na zadanu vrijednost:
+- `T0` = 2026-11-16T00:00:00Z = 1794787200,
+- `T1` = 2027-09-15T00:00:00Z = 1820966400,
+- `E1` = 2027-09-30T21:59:59Z = 1822341599,
+- `E1 + 1` = 2027-09-30T22:00:00Z = 1822341600,
+- `E2` = 2028-09-30T21:59:59Z = 1853963999.
+
 **K31: Izdavanje iskaznice (uspjeh)**
-Zadano: administrator A, adresa C bez iskaznice i datum isteka 30. 9. sljedeće godine.
-Kada: A pozove `issue(C, expiresAt)`.
-Tada: C posjeduje iskaznicu s novim `tokenId`, a `expiresAt` za taj `tokenId` jednak je zadanom datumu.
+Zadano: administrator A, adresa C bez iskaznice i vrijeme bloka `T0`.
+Kada: A pozove `issue(C, E1)`.
+Tada: C posjeduje iskaznicu s novim `tokenId`, a `expiresAt` za taj `tokenId` jednak je `E1`.
 
 **K32: Druga iskaznica za istu adresu**
 Zadano: adresa C koja već ima iskaznicu.
@@ -448,18 +469,23 @@ Kada: bilo tko pozove `isValid(tokenId)`.
 Tada: dobiva `true`.
 
 **K36: Istekla iskaznica ne otvara ulaz**
-Zadano: iskaznica `tokenId` s datumom isteka 30. 9. i vrijeme bloka 1. 10. iste godine.
+Zadano: iskaznica `tokenId` s `expiresAt = E1` i vrijeme bloka `E1 + 1`.
 Kada: bilo tko pozove `isValid(tokenId)`.
 Tada: dobiva `false`.
 
+**K66: Tuđi tokenId ne otvara ulaz**
+Zadano: valjana iskaznica `tokenId` 1 koju posjeduje C i adresa X bez iskaznice.
+Kada: provjera ulaza dobije `tokenId` 1 s porukom potpisanom ključem X, a zatim `tokenId` 1 s porukom potpisanom ključem C.
+Tada: prvi ulaz se odbija jer `ownerOf(1)` nije X, a drugi se dopušta.
+
 **K37: Produljenje iskaznice (uspjeh)**
-Zadano: administrator A i iskaznica `tokenId` s datumom isteka 30. 9. ove godine.
-Kada: A pozove `extend(tokenId, 30. 9. sljedeće godine)`.
-Tada: `expiresAt` za `tokenId` je 30. 9. sljedeće godine, a `isValid(tokenId)` vraća `true`.
+Zadano: administrator A, iskaznica `tokenId` s `expiresAt = E1` i vrijeme bloka `T1`.
+Kada: A pozove `extend(tokenId, E2)`.
+Tada: `expiresAt` za `tokenId` je `E2`, a `isValid(tokenId)` vraća `true`.
 
 **K38: Produljenje na raniji datum**
-Zadano: iskaznica `tokenId` s datumom isteka 30. 9. sljedeće godine.
-Kada: administrator A pozove `extend(tokenId, datum prije trenutnog datuma isteka, ali u budućnosti)`.
+Zadano: iskaznica `tokenId` s `expiresAt = E2` i vrijeme bloka `T0`.
+Kada: administrator A pozove `extend(tokenId, E1)` (prije trenutnog datuma isteka, ali u budućnosti).
 Tada: transakcija pada s porukom `Novi datum mora biti nakon trenutnog`.
 
 **K39: Produljenje bez ovlasti**
@@ -488,7 +514,7 @@ Kada: A pozove `recover(S, N)`.
 Tada: N posjeduje iskaznicu `tokenId`, a transakcija ne pada.
 
 **K44: Oporavak na adresu koja već ima iskaznicu**
-Zadano: stara adresa S s iskaznicom i nova adresa N koja već ima iskaznicu.
+Zadano: stara adresa S s iskaznicom i nova adresa N koja već ima iskaznicu i 5 CWB (vrijede dva uvjeta pada; prvi po redoslijedu je `Adresa vec ima iskaznicu`).
 Kada: administrator A pozove `recover(S, N)`.
 Tada: transakcija pada s porukom `Adresa vec ima iskaznicu`, a ni iskaznice ni bodovi se ne mijenjaju.
 
@@ -566,6 +592,11 @@ Zadano: član C sa saldom 10 CWB i adresa X.
 Kada: C pozove `approve(X, 5)`.
 Tada: transakcija pada s porukom `approve nije dozvoljen`, a `allowance(C, X)` je 0.
 
+**K64: Slanje nultog iznosa s adrese bez bodova**
+Zadano: adresa X sa saldom 0 CWB bez ikakve uloge i adresa Y sa saldom 0 CWB.
+Kada: X pozove `transfer(Y, 0)`.
+Tada: transakcija uspijeva, a salda X i Y ostaju 0 CWB.
+
 ### Granice i povezanost ugovora
 **K59: Prva iskaznica ima tokenId 1**
 Zadano: tek objavljen ugovor ClanskaIskaznica i adrese C1 i C2 bez iskaznice.
@@ -592,13 +623,18 @@ Zadano: ugovor ClanskaIskaznica nije na popisu administratora u CoworkingBodovi,
 Kada: V pozove `revoke(tokenId)`.
 Tada: transakcija pada s porukom `Samo vlasnik ili administrator`, C i dalje posjeduje `tokenId`, a saldo C je 10 CWB.
 
+**K67: Redoslijed provjera pri više uvjeta pada**
+Zadano: vlasnik CWB V.
+Kada: V pozove `mint(0x0, 0)` (nulta adresa i nulti iznos).
+Tada: transakcija pada s porukom `Neispravna adresa`, jer je to prvi uvjet po redoslijedu u listi „Pada" funkcije `mint`.
+
 ## Izvan opsega
 - ukupna gornja granica (cap) i granica po jednom izdavanju bodova,
 - zamjena bodova za usluge ili nagrade,
 - `transferFrom` za bodove i bilo kakav prijenos iskaznice među članovima,
 - višepotpisni novčanik (multisig) za vlasnika,
 - više vrsta članstva, slika iskaznice i ostali metapodaci osim `tokenId`,
-- fizički uređaj ili čitač na vratima prostora (aplikacija samo pruža `isValid`),
+- fizički uređaj ili čitač na vratima prostora (aplikacija samo pruža `isValid`; pravilo provjere potpisa vlasnika iskaznice vrijedi za svaki čitač, vidi `isValid` i K66),
 - automatska provjera statusa studenta.
 
 ## Otvorena pitanja
