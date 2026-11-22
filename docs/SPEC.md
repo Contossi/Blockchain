@@ -695,29 +695,29 @@ Tada: dobiva `true`, `true` i `false`.
 Funkcije su iz `contracts/ICoworking.sol`. Vlasničke funkcije postoje u oba ugovora, a K22–K30 i K60 testiraju se na oba.
 
 ### CoworkingBodovi (`ICoworkingToken`)
-| Funkcija | Kriteriji |
-|---|---|
-| `name`, `symbol`, `decimals` | K4 |
-| `totalSupply` | K1, K8, K12, K13, K68 |
-| `balanceOf` | K1, K5, K6, K10, K12, K57, K64 |
-| `allowance` | K58 |
-| `transfer` | K5, K6, K57, K64 |
-| `transferFrom` | K7 |
-| `approve` | K58 |
-| `mint` | K1, K2, K3, K20, K53, K56, K67 |
-| `burn` | K8, K9 |
-| `adminBurn` | K10, K11, K47, K63 |
-| `recoverPoints` | K12, K13, K14, K15, K16, K42, K62, K65, K68 |
-| `isAdmin` | K17, K20, K54 |
-| `addAdmin` | K17, K18, K19, K29, K54 |
-| `removeAdmin` | K20, K21 |
-| `owner` | K22, K23, K23a, K23b, K27, K28, K60 |
-| `backupOwner` | K23, K23a, K24, K27 |
-| `lastOwnerActivity` | K27, K28, K29, K60 |
-| `transferOwnership` | K22, K23 |
-| `renounceOwnership` | K23a, K23b |
-| `setBackupOwner` | K24, K25, K26, K56 |
-| `claimOwnership` | K27, K28, K29, K30, K60 |
+| Funkcija | Kriteriji | Test (`test/CoworkingBodovi.test.js`) |
+|---|---|---|
+| `name`, `symbol`, `decimals` | K4 | `K4: naziv, oznaka i decimale` |
+| `totalSupply` | K1, K8, K12, K13, K68 | `K1: administrator izdaje bodove`<br>`K8: clan spaljuje svoje bodove`<br>`K12: oporavak bodova s gubitkom od 30 %`<br>`K13: zaokruzivanje gubitka u korist clana`<br>`K68: oporavak malog salda bez gubitka` |
+| `balanceOf` | K1, K5, K6, K10, K12, K57, K64 | `K1: administrator izdaje bodove`<br>`K5: slanje bodova`<br>`K6: slanje vise bodova nego sto clan ima`<br>`K10: administrator spaljuje tudje bodove`<br>`K12: oporavak bodova s gubitkom od 30 %`<br>`K57: slanje nultog iznosa`<br>`K64: slanje nultog iznosa s adrese bez bodova` |
+| `allowance` | K58 | `K58: approve je zabranjen` |
+| `transfer` | K5, K6, K57, K64 | `K5: slanje bodova`<br>`K6: slanje vise bodova nego sto clan ima`<br>`K57: slanje nultog iznosa`<br>`K64: slanje nultog iznosa s adrese bez bodova` |
+| `transferFrom` | K7 | `K7: transferFrom je zabranjen` |
+| `approve` | K58 | `K58: approve je zabranjen` |
+| `mint` | K1, K2, K3, K20, K53, K56, K67 | `K1: administrator izdaje bodove`<br>`K2: clan bez ovlasti ne moze izdati bodove`<br>`K3: izdavanje nultog iznosa`<br>`K20: vlasnik uklanja administratora`<br>`K53: vlasnik iskaznice ne izdaje bodove`<br>`K56: rezervni vlasnik koji je i administrator izdaje bodove`<br>`K67: redoslijed provjera pri vise uvjeta pada` |
+| `burn` | K8, K9 | `K8: clan spaljuje svoje bodove`<br>`K9: clan spaljuje vise bodova nego sto ima` |
+| `adminBurn` | K10, K11, K47, K63 | `K10: administrator spaljuje tudje bodove`<br>`K11: clan pokusava spaliti tudje bodove`<br>K47: nema testa (treba ClanskaIskaznica)<br>K63: nema testa (treba ClanskaIskaznica) |
+| `recoverPoints` | K12, K13, K14, K15, K16, K42, K62, K65, K68 | `K12: oporavak bodova s gubitkom od 30 %`<br>`K13: zaokruzivanje gubitka u korist clana`<br>`K14: oporavak bodova bez ovlasti`<br>`K15: oporavak s prazne adrese`<br>`K16: oporavak na istu adresu`<br>K42: nema testa (treba ClanskaIskaznica)<br>K62: nema testa (treba ClanskaIskaznica)<br>`K65: oporavak bodova na adresu koja vec ima bodove`<br>`K68: oporavak malog salda bez gubitka` |
+| `isAdmin` | K17, K20, K54 | `K17: vlasnik dodaje administratora`<br>`K20: vlasnik uklanja administratora`<br>`K54: vlasnik iskaznice ne upravlja administratorima` |
+| `addAdmin` | K17, K18, K19, K29, K54 | `K17: vlasnik dodaje administratora`<br>`K18: administrator pokusava dodati administratora`<br>`K19: dvostruko dodavanje administratora`<br>`K29: aktivnost vlasnika ponistava odbrojavanje`<br>`K54: vlasnik iskaznice ne upravlja administratorima` |
+| `removeAdmin` | K20, K21 | `K20: vlasnik uklanja administratora`<br>`K21: uklanjanje adrese koja nije administrator` |
+| `owner` | K22, K23, K23a, K23b, K27, K28, K60 | `K22: administrator pokusava preuzeti vlasnistvo`<br>`K23: vlasnik prenosi vlasnistvo`<br>`K23a: vlasnik se odrice vlasnistva`<br>`K23b: netko drugi se odrice vlasnistva`<br>`K27: rezervni vlasnik preuzima nakon 180 dana`<br>`K28: rezervni vlasnik prerano preuzima`<br>`K60: preuzimanje vlasnistva tocno na granici` |
+| `backupOwner` | K23, K23a, K24, K27 | `K23: vlasnik prenosi vlasnistvo`<br>`K23a: vlasnik se odrice vlasnistva`<br>`K24: vlasnik postavlja rezervnog vlasnika`<br>`K27: rezervni vlasnik preuzima nakon 180 dana` |
+| `lastOwnerActivity` | K27, K28, K29, K60 | `K27: rezervni vlasnik preuzima nakon 180 dana`<br>`K28: rezervni vlasnik prerano preuzima`<br>`K29: aktivnost vlasnika ponistava odbrojavanje`<br>`K60: preuzimanje vlasnistva tocno na granici` |
+| `transferOwnership` | K22, K23 | `K22: administrator pokusava preuzeti vlasnistvo`<br>`K23: vlasnik prenosi vlasnistvo` |
+| `renounceOwnership` | K23a, K23b | `K23a: vlasnik se odrice vlasnistva`<br>`K23b: netko drugi se odrice vlasnistva` |
+| `setBackupOwner` | K24, K25, K26, K56 | `K24: vlasnik postavlja rezervnog vlasnika`<br>`K25: netko drugi postavlja rezervnog vlasnika`<br>`K26: vlasnik kao vlastiti rezervni vlasnik`<br>`K56: rezervni vlasnik koji je i administrator izdaje bodove` |
+| `claimOwnership` | K27, K28, K29, K30, K60 | `K27: rezervni vlasnik preuzima nakon 180 dana`<br>`K28: rezervni vlasnik prerano preuzima`<br>`K29: aktivnost vlasnika ponistava odbrojavanje`<br>`K30: netko tko nije rezervni vlasnik preuzima`<br>`K60: preuzimanje vlasnistva tocno na granici` |
 
 ### ClanskaIskaznica (`ICoworkingModul`)
 | Funkcija | Kriteriji |

@@ -63,3 +63,8 @@ Ponovljena stroga recenzija docs/SPEC.md. Nalazi koji su već obrađeni u prvoj 
 | Svatko može blokirati `recover` slanjem 1 CWB na novu adresu; predloženo da `transfer` bude dopušten samo adresama s iskaznicom | odbijeno | Takvo ograničenje mijenja model tokena i suprotno je pretpostavci iz otvorenog pitanja 6 (bodovi se smiju držati bez iskaznice). Blokada je jeftino zaobilazna: administrator odabere drugu, novu adresu. |
 | Lažnom prijavom gubitka član može „prodati" iskaznicu na tuđu adresu i izbjeći gubitak od 30 %; predloženo ograničenje jednog oporavka u 180 dana | odbijeno | Ugovor ne može provjeriti identitet osobe, a vremensko ograničenje kaznilo bi i stvaran ponovljeni gubitak novčanika. Zaštita je izvanlančana: administrator oporavak radi uživo, uz provjeru identiteta. |
 | `saldo * 30` može se preliti ako saldo prijeđe `2^256 / 30`, jer nema gornje granice izdavanja | odbijeno | Do toga može doći samo ako administrator izda astronomski iznos, a administratori se smatraju povjerljivima. Preljev u Solidity ^0.8 ionako vraća transakciju, pa nema tihe greške ni gubitka stanja. |
+
+## Vježba 4: testovi
+- Testova: 42, prolazi: 42
+- Greška AI-ja koju sam uočio: /
+- Mutacijska provjera: maknuo sam require(amount > 0, "Iznos mora biti veci od 0"), pao je test "K3"

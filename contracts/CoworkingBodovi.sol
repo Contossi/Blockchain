@@ -42,7 +42,7 @@ contract CoworkingBodovi is ERC20, Ownable, ICoworkingToken {
     }
 
     modifier onlyOwnerOrAdmin() {
-        require(msg.sender == owner() || isAdmin[msg.sender], "Samo vlasnik ili administrator");
+         require(msg.sender == owner() || isAdmin[msg.sender], "Samo vlasnik ili administrator");
         _;
     }
 

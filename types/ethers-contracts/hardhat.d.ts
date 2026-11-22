@@ -10,21 +10,21 @@ import * as Contracts from "./index.js";
 
 declare module "@nomicfoundation/hardhat-ethers/types" {
   interface HardhatEthersHelpers extends HardhatEthersHelpersBase {
-  getContractFactory(name: 'CoworkingBodovi', signerOrOptions?: ethers.Signer | FactoryOptions): Promise<Contracts.CoworkingBodovi__factory>
-getContractFactory(name: 'ICoworkingModul', signerOrOptions?: ethers.Signer | FactoryOptions): Promise<Contracts.ICoworkingModul__factory>
+  getContractFactory(name: 'ICoworkingModul', signerOrOptions?: ethers.Signer | FactoryOptions): Promise<Contracts.ICoworkingModul__factory>
 getContractFactory(name: 'ICoworkingToken', signerOrOptions?: ethers.Signer | FactoryOptions): Promise<Contracts.ICoworkingToken__factory>
+getContractFactory(name: 'CoworkingBodovi', signerOrOptions?: ethers.Signer | FactoryOptions): Promise<Contracts.CoworkingBodovi__factory>
 
-  getContractAt(name: 'CoworkingBodovi', address: string | ethers.Addressable, signer?: ethers.Signer): Promise<Contracts.CoworkingBodovi>
-getContractAt(name: 'ICoworkingModul', address: string | ethers.Addressable, signer?: ethers.Signer): Promise<Contracts.ICoworkingModul>
+  getContractAt(name: 'ICoworkingModul', address: string | ethers.Addressable, signer?: ethers.Signer): Promise<Contracts.ICoworkingModul>
 getContractAt(name: 'ICoworkingToken', address: string | ethers.Addressable, signer?: ethers.Signer): Promise<Contracts.ICoworkingToken>
+getContractAt(name: 'CoworkingBodovi', address: string | ethers.Addressable, signer?: ethers.Signer): Promise<Contracts.CoworkingBodovi>
 
-  deployContract(name: 'CoworkingBodovi', signerOrOptions?: ethers.Signer | DeployContractOptions): Promise<Contracts.CoworkingBodovi>
-deployContract(name: 'ICoworkingModul', signerOrOptions?: ethers.Signer | DeployContractOptions): Promise<Contracts.ICoworkingModul>
+  deployContract(name: 'ICoworkingModul', signerOrOptions?: ethers.Signer | DeployContractOptions): Promise<Contracts.ICoworkingModul>
 deployContract(name: 'ICoworkingToken', signerOrOptions?: ethers.Signer | DeployContractOptions): Promise<Contracts.ICoworkingToken>
+deployContract(name: 'CoworkingBodovi', signerOrOptions?: ethers.Signer | DeployContractOptions): Promise<Contracts.CoworkingBodovi>
 
-  deployContract(name: 'CoworkingBodovi', args: any[], signerOrOptions?: ethers.Signer | DeployContractOptions): Promise<Contracts.CoworkingBodovi>
-deployContract(name: 'ICoworkingModul', args: any[], signerOrOptions?: ethers.Signer | DeployContractOptions): Promise<Contracts.ICoworkingModul>
+  deployContract(name: 'ICoworkingModul', args: any[], signerOrOptions?: ethers.Signer | DeployContractOptions): Promise<Contracts.ICoworkingModul>
 deployContract(name: 'ICoworkingToken', args: any[], signerOrOptions?: ethers.Signer | DeployContractOptions): Promise<Contracts.ICoworkingToken>
+deployContract(name: 'CoworkingBodovi', args: any[], signerOrOptions?: ethers.Signer | DeployContractOptions): Promise<Contracts.CoworkingBodovi>
 
     // default types
     getContractFactory(
