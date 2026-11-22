@@ -68,3 +68,16 @@ Ponovljena stroga recenzija docs/SPEC.md. Nalazi koji su već obrađeni u prvoj 
 - Testova: 42, prolazi: 42
 - Greška AI-ja koju sam uočio: /
 - Mutacijska provjera: maknuo sam require(amount > 0, "Iznos mora biti veci od 0"), pao je test "K3"
+
+## Vježba 4: objava na lokalnoj mreži
+- adresa ugovora: 0x5fbdb2315678afecb367f032d93f642f64180aa3 / hash transakcije 0xdcec0892770e7d3656089277f8ec3311a41f564d858e2edf25a144eda1d68f61 /  blok: 0xbc72ed62c8d0558fcefb70c332aaeeb492b0f7507e76eacef015cb8d0dee08e8 / gas: 
+2289489 of 2289489
+- Zašto objava troši gas, a čitanje salda ne?
+Objava je transkacija koja mijenja stanje blockchaina
+
+- Zašto je druga transakcija (addAdmin) potrošila puno manje
+gasa od objave?
+Objava plaća spremanje cijelog koda ugovora: 200gasa po bajtu a ugovor ima nekoliko kilobajta, uz to se placa i osnovna cijena stvaranja ugovora od 32000.
+
+- Što bi se dogodilo s ugovorom da sad ugasim npx hardhat node?
+ugovor bi nestao, hardhat node je lokalni testni blockchain. kada ga ugasimo nestanu svi blokovi, ugovori, salda i administratori.
