@@ -2,4 +2,4 @@
 
 Autor: Andrej Kontošić
 
-Frontend sad ima mogučnost spajanja na MetaMask i slanje Sepolia ETH te se prikazuje povijest Receipta.
+Frontend ima mogućnost spajanja na MetaMask, slanja Sepolia ETH i prikaz povijesti Receipta. Napisan je i testiran ugovor tokena CoworkingBodovi (CWB), ali još nije povezan s frontendom.
