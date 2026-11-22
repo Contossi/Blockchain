@@ -108,7 +108,7 @@ U odjeljku *Funkcije* „vlasnik" u porukama pada (`Samo vlasnik`, `Samo vlasnik
 **`issue(to, expiresAt)`**
 - Poziva: vlasnik iskaznice, administrator.
 - Ulaz: adresa člana, datum isteka (Unix vrijeme; frontend šalje 30. 9. tekuće akademske godine).
-- Radi: izdaje novu iskaznicu sa sljedećim `tokenId` i pamti datum isteka.
+- Radi: izdaje novu iskaznicu sa sljedećim `tokenId`, pamti datum isteka i vraća novi `tokenId`.
 - Pada:
   - pozivatelj nije vlasnik ni administrator → `Samo vlasnik ili administrator`
   - `to` je nulta adresa → `Neispravna adresa`
@@ -131,10 +131,20 @@ U odjeljku *Funkcije* „vlasnik" u porukama pada (`Samo vlasnik`, `Samo vlasnik
 - Napomena: `tokenId` je javan, pa sam `isValid` ne dokazuje posjed iskaznice. Provjera ulaza (izvan lanca) mora tražiti poruku potpisanu ključem adrese `ownerOf(tokenId)` i odbiti ulaz ako potpisnik nije ta adresa.
 - Pada: ne pada.
 
-**`transferFrom` / `safeTransferFrom`**
+**`transferFrom` / `safeTransferFrom`** (oba oblika: sa i bez `bytes data`)
 - Poziva: nitko.
 - Radi: ništa, uvijek pada.
 - Pada: uvijek → `Iskaznica nije prenosiva`
+
+**`approve` / `setApprovalForAll`**
+- Poziva: nitko.
+- Radi: ništa, uvijek pada (odobrenja nemaju smisla jer iskaznica nije prenosiva).
+- Pada: uvijek → `Iskaznica nije prenosiva`
+
+**`getApproved(tokenId)` / `isApprovedForAll(holder, operator)`** (čitanje)
+- Poziva: bilo tko.
+- Radi: `getApproved` uvijek vraća nultu adresu, a `isApprovedForAll` uvijek `false`.
+- Pada: ne pada.
 
 **`recover(oldAddr, newAddr)`**
 - Poziva: vlasnik iskaznice, administrator.
@@ -226,7 +236,7 @@ ClanskaIskaznica nema vlastiti popis administratora. Pri svakoj provjeri ovlasti
 | `extend` (iskaznica) | ❌ | ✅ | ❌ | ✅ | ❌ | ❌ |
 | `recover` (iskaznica) | ❌ | ✅ | ❌ | ✅ | ❌ | ❌ |
 | `revoke` (iskaznica) | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ |
-| prijenos iskaznice | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| prijenos iskaznice, `approve`, `setApprovalForAll` (iskaznica) | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
 | `isValid`, `tokenURI`, salda | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
 | `addAdmin`, `removeAdmin` (samo CWB ugovor) | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
 | `transferOwnership`, `renounceOwnership`, `setBackupOwner` | ✅ (CWB) | ✅ (iskaznica) | ❌ | ❌ | ❌ | ❌ |
@@ -248,9 +258,20 @@ Ugovor ClanskaIskaznica ima ulogu administratora u ugovoru CoworkingBodovi. Admi
 - vlasnik svakog `tokenId` (standardni ERC-721),
 - `expiresAt`: `tokenId` → datum isteka (Unix vrijeme),
 - `cardOf`: adresa → `tokenId` (za pravilo jedne iskaznice po adresi),
-- `nextTokenId`: brojač koji kreće od 1; spaljeni `tokenId` se ne koristi ponovno. `tokenId` 0 nikad se ne izdaje, pa `cardOf(adresa) == 0` znači da adresa nema iskaznicu,
+- `nextTokenId`: javni brojač koji vraća `tokenId` sljedeće iskaznice koja će se izdati; kreće od 1, a spaljeni `tokenId` se ne koristi ponovno. `tokenId` 0 nikad se ne izdaje, pa `cardOf(adresa) == 0` znači da adresa nema iskaznicu,
 - `points`: adresa ugovora CoworkingBodovi (postavlja se pri objavi); iz njega se čita `isAdmin`,
 - `owner` (vlasnik iskaznice), `backupOwner`, `lastOwnerActivity`: kao gore, ali vlastiti za ovaj ugovor (vlastiti popis administratora ne postoji).
+
+## Sučelja (contracts/ICoworking.sol)
+| Odluka | Odgovor |
+|---|---|
+| Datoteka i nazivi | `contracts/ICoworking.sol`: `ICoworkingToken` (CoworkingBodovi) i `ICoworkingModul` (ClanskaIskaznica). Prefiks `Coworking` je tehnički naziv; naziv aplikacije ostaje otvoreno pitanje 1. |
+| Standardi | `ICoworkingToken` nasljeđuje `IERC20Metadata`, a `ICoworkingModul` nasljeđuje `IERC721` (OpenZeppelin Contracts 5.x). |
+| Događaji | Samo standardni: ERC-20 `Transfer` i `Approval`, ERC-721 `Transfer`, `Approval` i `ApprovalForAll`. Vlastitih događaja nema. Iznimka: ugovor koji nasljeđuje OpenZeppelin `Ownable` (CoworkingBodovi) emitira i njegov događaj `OwnershipTransferred` pri objavi, `transferOwnership`, `renounceOwnership` i `claimOwnership`. Taj događaj nije dio sučelja `ICoworking.sol`. Postavljanje rezervnog vlasnika i promjene popisa administratora ne emitiraju događaje. |
+| `name` / `symbol` iskaznice | Ne definiraju se (`ICoworkingModul` ne nasljeđuje `IERC721Metadata`). `tokenURI` je posebno naveden. |
+| Tipovi | Svi iznosi, `tokenId`, `expiresAt` i `lastOwnerActivity` su `uint256`. |
+| Povratne vrijednosti | `issue` vraća novi `tokenId`. `transfer`, `transferFrom` i `approve` (CWB) vraćaju `bool` prema ERC-20 standardu. `mint`, `burn`, `adminBurn`, `recoverPoints`, `extend`, `recover`, `revoke`, funkcije administratora i vlasništva ne vraćaju ništa. |
+| Javni getteri | CoworkingBodovi: `owner`, `backupOwner`, `lastOwnerActivity`, `isAdmin`. ClanskaIskaznica: `owner`, `backupOwner`, `lastOwnerActivity`, `expiresAt`, `cardOf`, `nextTokenId`, `points`. |
 
 ## Što se NE sprema na blockchain
 - ime, prezime, JMBAG, OIB, e-pošta, broj mobitela, fotografija člana,
@@ -500,7 +521,7 @@ Tada: transakcija pada s porukom `Iskaznica ne postoji`.
 
 **K41: Iskaznica nije prenosiva**
 Zadano: član C1 koji ima iskaznicu `tokenId` i adresa C2.
-Kada: C1 pozove `transferFrom(C1, C2, tokenId)` ili `safeTransferFrom(C1, C2, tokenId)`.
+Kada: C1 pozove `transferFrom(C1, C2, tokenId)`, `safeTransferFrom(C1, C2, tokenId)` ili `safeTransferFrom(C1, C2, tokenId, data)`.
 Tada: transakcija pada s porukom `Iskaznica nije prenosiva`, a vlasnik iskaznice ostaje C1.
 
 **K42: Oporavak iskaznice s bodovima (uspjeh)**
@@ -628,6 +649,31 @@ Zadano: vlasnik CWB V.
 Kada: V pozove `mint(0x0, 0)` (nulta adresa i nulti iznos).
 Tada: transakcija pada s porukom `Neispravna adresa`, jer je to prvi uvjet po redoslijedu u listi „Pada" funkcije `mint`.
 
+**K69: Odobrenja za iskaznicu su zabranjena**
+Zadano: član C1 koji ima iskaznicu `tokenId` i adresa X.
+Kada: C1 pozove `approve(X, tokenId)`, a zatim `setApprovalForAll(X, true)`.
+Tada: oba poziva padaju s porukom `Iskaznica nije prenosiva`, `getApproved(tokenId)` vraća nultu adresu, a `isApprovedForAll(C1, X)` vraća `false`.
+
+**K70: issue vraća novi tokenId**
+Zadano: tek objavljen ugovor ClanskaIskaznica, administrator A i adresa C bez iskaznice.
+Kada: bilo tko pročita `nextTokenId()`, a zatim A pozove `issue(C, expiresAt)`.
+Tada: `nextTokenId()` prije izdavanja vraća 1, `issue` vraća 1, a `nextTokenId()` nakon izdavanja vraća 2.
+
+**K71: Iskaznica zna adresu ugovora bodova**
+Zadano: objavljen ugovor CoworkingBodovi na adresi P i ugovor ClanskaIskaznica objavljen s adresom P.
+Kada: bilo tko pozove `points()` u ClanskaIskaznica.
+Tada: dobiva P.
+
+**K72: Broj iskaznica po adresi**
+Zadano: administrator A, adresa S s iskaznicom i adresa N bez iskaznice i bez bodova CWB.
+Kada: bilo tko pročita `balanceOf(S)` i `balanceOf(N)` u ClanskaIskaznica, A pozove `recover(S, N)`, pa se salda pročitaju ponovno.
+Tada: prije oporavka `balanceOf(S)` je 1, a `balanceOf(N)` je 0; nakon oporavka `balanceOf(S)` je 0, a `balanceOf(N)` je 1.
+
+**K73: Iskaznica prijavljuje standard ERC-721**
+Zadano: objavljen ugovor ClanskaIskaznica.
+Kada: bilo tko pozove `supportsInterface` s identifikatorom ERC-721 (`0x80ac58cd`), ERC-165 (`0x01ffc9a7`) i `0xffffffff`.
+Tada: dobiva `true`, `true` i `false`.
+
 ## Izvan opsega
 - ukupna gornja granica (cap) i granica po jednom izdavanju bodova,
 - zamjena bodova za usluge ili nagrade,
@@ -646,4 +692,56 @@ Tada: transakcija pada s porukom `Neispravna adresa`, jer je to prvi uvjet po re
 6. **Bodovi bez iskaznice:** smiju li se bodovi izdavati adresi koja nema iskaznicu (ili ima isteklu)? (Pretpostavka: smiju, jer nije zadano ograničenje.)
 
 ## Sljedivost
-(popunjava se u Dijelu 4)
+Funkcije su iz `contracts/ICoworking.sol`. Vlasničke funkcije postoje u oba ugovora, a K22–K30 i K60 testiraju se na oba.
+
+### CoworkingBodovi (`ICoworkingToken`)
+| Funkcija | Kriteriji |
+|---|---|
+| `name`, `symbol`, `decimals` | K4 |
+| `totalSupply` | K1, K8, K12, K13, K68 |
+| `balanceOf` | K1, K5, K6, K10, K12, K57, K64 |
+| `allowance` | K58 |
+| `transfer` | K5, K6, K57, K64 |
+| `transferFrom` | K7 |
+| `approve` | K58 |
+| `mint` | K1, K2, K3, K20, K53, K56, K67 |
+| `burn` | K8, K9 |
+| `adminBurn` | K10, K11, K47, K63 |
+| `recoverPoints` | K12, K13, K14, K15, K16, K42, K62, K65, K68 |
+| `isAdmin` | K17, K20, K54 |
+| `addAdmin` | K17, K18, K19, K29, K54 |
+| `removeAdmin` | K20, K21 |
+| `owner` | K22, K23, K23a, K23b, K27, K28, K60 |
+| `backupOwner` | K23, K23a, K24, K27 |
+| `lastOwnerActivity` | K27, K28, K29, K60 |
+| `transferOwnership` | K22, K23 |
+| `renounceOwnership` | K23a, K23b |
+| `setBackupOwner` | K24, K25, K26, K56 |
+| `claimOwnership` | K27, K28, K29, K30, K60 |
+
+### ClanskaIskaznica (`ICoworkingModul`)
+| Funkcija | Kriteriji |
+|---|---|
+| `supportsInterface` | K73 |
+| `balanceOf` | K72 |
+| `ownerOf` | K31, K41, K42, K43, K66 |
+| `getApproved`, `isApprovedForAll` | K69 |
+| `tokenURI` | K50 |
+| `transferFrom`, `safeTransferFrom` (oba oblika) | K41 |
+| `approve`, `setApprovalForAll` | K69 |
+| `issue` | K17, K20, K31, K32, K33, K34, K49, K52, K59, K70 |
+| `extend` | K29, K37, K38, K39, K40 |
+| `isValid` | K35, K36, K37, K47, K61, K66 |
+| `recover` | K42, K43, K44, K45, K46, K51, K62, K72 |
+| `revoke` | K47, K48, K49, K55, K63 |
+| `expiresAt` | K31, K37, K42 |
+| `cardOf` | K59 |
+| `nextTokenId` | K59, K70 |
+| `points` | K71 |
+| `owner` | K22, K23, K23a, K23b, K27, K28, K60 |
+| `backupOwner` | K23, K23a, K24, K27 |
+| `lastOwnerActivity` | K27, K28, K29, K60 |
+| `transferOwnership` | K22, K23 |
+| `renounceOwnership` | K23a, K23b |
+| `setBackupOwner` | K24, K25, K26 |
+| `claimOwnership` | K27, K28, K29, K30, K60 |

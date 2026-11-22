@@ -1,6 +1,6 @@
 # AI dnevnik
 
-## T1 — Postavljanje projekta (datum)
+## T1 — Postavljanje projekta (26.10.2026.)
 - Cilj termina: Specifikacija, kritike, sucelje, deploy
 - Najkorisniji prompt (kopiran u cijelosti): 
 -------------------------------------------------------------------
