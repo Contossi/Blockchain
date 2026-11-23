@@ -81,3 +81,7 @@ Objava plaća spremanje cijelog koda ugovora: 200gasa po bajtu a ugovor ima neko
 
 - Što bi se dogodilo s ugovorom da sad ugasim npx hardhat node?
 ugovor bi nestao, hardhat node je lokalni testni blockchain. kada ga ugasimo nestanu svi blokovi, ugovori, salda i administratori.
+
+## Vježba 5(23.11.2026): 
+- sve je bilo u redu.
+- Ne spremamo jer svatko može pročitati podatke u javnom blockchainu čak iako je varijabla private.
